@@ -1,129 +1,178 @@
-import java.util.*;
-
+// Clase que representa un grafo dirigido usando listas enlazadas propias para vértices y aristas
 public class Graph {
-    private Set<Integer> vertices;
+    // Lista de vértices (sin duplicados)
+    private LinkedList<Integer> vertices;
+    // Lista de aristas (cada arista es un objeto GraphLink)
     private GraphListEdge aristas;
 
+    // Constructor: inicializa las listas de vértices y aristas
     public Graph() {
-        vertices = new HashSet<>();
+        vertices = new LinkedList<>();
         aristas = new GraphListEdge();
     }
 
+    // Agrega un vértice al grafo si no existe aún
     public void agregarVertice(int v) {
-        vertices.add(v);
+        if (!vertices.contains(v)) vertices.add(v);
     }
 
+    // Agrega una arista dirigida (origen -> destino) y asegura que ambos vértices existan
     public void agregarArista(int origen, int destino) {
-        vertices.add(origen);
-        vertices.add(destino);
+        agregarVertice(origen);
+        agregarVertice(destino);
         aristas.agregarArista(new GraphLink(origen, destino));
     }
 
-    public Set<Integer> obtenerVertices() {
+    // Devuelve la lista de vértices del grafo
+    public LinkedList<Integer> obtenerVertices() {
         return vertices;
     }
 
-    public List<GraphLink> obtenerAristas() {
+    // Devuelve la lista de aristas del grafo
+    public LinkedList<GraphLink> obtenerAristas() {
         return aristas.obtenerAristas();
     }
 
+    // Verifica si existe una arista dirigida entre dos vértices
     public boolean existeArista(int origen, int destino) {
         return aristas.contieneArista(new GraphLink(origen, destino));
     }
 
-    public List<Integer> vecinos(int v) {
-        List<Integer> lista = new ArrayList<>();
-        for (GraphLink arista : aristas.obtenerAristas()) {
-            if (arista.origen == v) lista.add(arista.destino);
+    // Devuelve los vecinos (destinos alcanzables directamente) de un vértice
+    public LinkedList<Integer> vecinos(int v) {
+        LinkedList<Integer> lista = new LinkedList<>();
+        LinkedList<GraphLink> todas = aristas.obtenerAristas();
+        LinkedList.Node<GraphLink> temp = todas.head;
+        while (temp != null) {
+            if (temp.data.origen == v) lista.add(temp.data.destino);
+            temp = temp.next;
         }
         return lista;
     }
 
-    // ----------- PROPIEDADES ------------
+    // ----------- PROPIEDADES DEL GRAFO ------------
 
-    // Conexo (fuertemente conexo para dirigido)
+    // Verifica si el grafo es fuertemente conexo (todos los vértices son alcanzables desde cualquier otro)
     public boolean esConexo() {
-        for (int v : vertices) {
-            Set<Integer> visitados = new HashSet<>();
-            dfs(v, visitados);
-            if (visitados.size() != vertices.size()) return false;
+        LinkedList.Node<Integer> temp = vertices.head;
+        int totalVertices = vertices.size();
+        while (temp != null) {
+            LinkedList<Integer> visitados = new LinkedList<>();
+            dfs(temp.data, visitados);
+            if (visitados.size() != totalVertices) return false;
+            temp = temp.next;
         }
         return true;
     }
 
-    private void dfs(int actual, Set<Integer> visitados) {
-        visitados.add(actual);
-        for (int vecino : vecinos(actual)) {
-            if (!visitados.contains(vecino)) {
-                dfs(vecino, visitados);
+    // Búsqueda en profundidad (DFS) para marcar vértices alcanzados
+    private void dfs(int actual, LinkedList<Integer> visitados) {
+        if (!visitados.contains(actual)) {
+            visitados.add(actual);
+            LinkedList<Integer> vecinosList = vecinos(actual);
+            LinkedList.Node<Integer> temp = vecinosList.head;
+            while (temp != null) {
+                dfs(temp.data, visitados);
+                temp = temp.next;
             }
         }
     }
 
-    // Complemento
+    // Devuelve el complemento del grafo (mismas conexiones posibles, excepto las que ya existen)
     public Graph complemento() {
         Graph comp = new Graph();
-        for (int v : vertices) comp.agregarVertice(v);
-        for (int u : vertices) {
-            for (int v : vertices) {
-                if (u != v && !existeArista(u, v)) {
-                    comp.agregarArista(u, v);
+        // Copia todos los vértices
+        LinkedList.Node<Integer> tempU = vertices.head;
+        while (tempU != null) {
+            comp.agregarVertice(tempU.data);
+            tempU = tempU.next;
+        }
+        // Agrega aristas que no existen en el grafo original
+        tempU = vertices.head;
+        while (tempU != null) {
+            LinkedList.Node<Integer> tempV = vertices.head;
+            while (tempV != null) {
+                if (tempU.data != tempV.data && !existeArista(tempU.data, tempV.data)) {
+                    comp.agregarArista(tempU.data, tempV.data);
                 }
+                tempV = tempV.next;
             }
+            tempU = tempU.next;
         }
         return comp;
     }
 
-    // Isomorfismo (solo para grafos pequeños, fuerza bruta)
+    // Verifica si el grafo es isomorfo a otro (misma estructura bajo renombramiento de vértices)
     public boolean esIsomorfo(Graph otro) {
         if (vertices.size() != otro.vertices.size() || aristas.obtenerAristas().size() != otro.aristas.obtenerAristas().size())
             return false;
 
-        List<Integer> listaV1 = new ArrayList<>(vertices);
-        List<Integer> listaV2 = new ArrayList<>(otro.vertices);
+        LinkedList<Integer> listaV1 = copiarLista(vertices);
+        LinkedList<Integer> listaV2 = copiarLista(otro.vertices);
 
         return permutacionesIsomorfas(listaV1, listaV2, otro);
     }
 
-    private boolean permutacionesIsomorfas(List<Integer> v1, List<Integer> v2, Graph otro) {
-        return permutacionesIsomorfasHelper(v1, v2, new boolean[v2.size()], new HashMap<>(), otro, 0);
+    // Copia una lista enlazada de enteros
+    private LinkedList<Integer> copiarLista(LinkedList<Integer> original) {
+        LinkedList<Integer> copia = new LinkedList<>();
+        LinkedList.Node<Integer> temp = original.head;
+        while (temp != null) {
+            copia.add(temp.data);
+            temp = temp.next;
+        }
+        return copia;
     }
 
-    private boolean permutacionesIsomorfasHelper(List<Integer> v1, List<Integer> v2, boolean[] usados, Map<Integer, Integer> mapeo, Graph otro, int idx) {
-        if (idx == v1.size()) {
-            // Verificar si la correspondencia es válida
-            for (GraphLink arista : aristas.obtenerAristas()) {
-                int origenMap = mapeo.get(arista.origen);
-                int destinoMap = mapeo.get(arista.destino);
+    // Genera todas las permutaciones posibles de vértices para verificar isomorfismo (fuerza bruta)
+    private boolean permutacionesIsomorfas(LinkedList<Integer> v1, LinkedList<Integer> v2, Graph otro) {
+        int n = v1.size();
+        boolean[] usados = new boolean[n];
+        int[] mapeo = new int[n];
+        return permutacionesIsomorfasHelper(v1, v2, usados, mapeo, otro, 0);
+    }
+
+    // Ayudante recursivo para probar todas las permutaciones de isomorfismo
+    private boolean permutacionesIsomorfasHelper(LinkedList<Integer> v1, LinkedList<Integer> v2, boolean[] usados, int[] mapeo, Graph otro, int idx) {
+        int n = v1.size();
+        if (idx == n) {
+            // Valida que la correspondencia de vértices conserva las aristas
+            LinkedList.Node<GraphLink> temp = aristas.obtenerAristas().head;
+            while (temp != null) {
+                int origen = temp.data.origen;
+                int destino = temp.data.destino;
+                int origenMap = -1, destinoMap = -1;
+                for (int i = 0; i < n; i++) {
+                    if (v1.get(i) == origen) origenMap = v2.get(mapeo[i]);
+                    if (v1.get(i) == destino) destinoMap = v2.get(mapeo[i]);
+                }
                 if (!otro.existeArista(origenMap, destinoMap)) return false;
+                temp = temp.next;
             }
             return true;
         }
-        for (int i = 0; i < v2.size(); i++) {
+        for (int i = 0; i < n; i++) {
             if (!usados[i]) {
                 usados[i] = true;
-                mapeo.put(v1.get(idx), v2.get(i));
+                mapeo[idx] = i;
                 if (permutacionesIsomorfasHelper(v1, v2, usados, mapeo, otro, idx + 1)) return true;
                 usados[i] = false;
-                mapeo.remove(v1.get(idx));
             }
         }
         return false;
     }
 
-    // Auto-complementario
+    // Verifica si el grafo es auto-complementario (isomorfo a su complemento)
     public boolean esAutoComplementario() {
         Graph comp = complemento();
         return esIsomorfo(comp);
     }
 
-    // Plano (heurístico simple para grafos pequeños)
+    // Verifica si el grafo es plano usando la desigualdad de Euler (solo para grafos pequeños y simples)
     public boolean esPlano() {
-        // Para grafos pequeños, usar el teorema de Kuratowski o la desigualdad de Euler para grafos simples conectados
-        // |E| <= 3|V| - 6 para grafos simples, conectados y sin lazos múltiples, con |V| >= 3
         int n = vertices.size();
         int m = aristas.obtenerAristas().size();
-        if (n < 5) return true; // Todos los grafos con menos de 5 vértices son planos
+        if (n < 5) return true;
         return m <= 3 * n - 6;
     }
 }

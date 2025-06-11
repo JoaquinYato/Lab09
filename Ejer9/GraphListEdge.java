@@ -1,17 +1,15 @@
-import java.util.*;
-
 public class GraphListEdge {
-    private List<GraphLink> aristas;
+    private LinkedList<GraphLink> aristas;
 
     public GraphListEdge() {
-        aristas = new ArrayList<>();
+        aristas = new LinkedList<>();
     }
 
     public void agregarArista(GraphLink arista) {
         aristas.add(arista);
     }
 
-    public List<GraphLink> obtenerAristas() {
+    public LinkedList<GraphLink> obtenerAristas() {
         return aristas;
     }
 
