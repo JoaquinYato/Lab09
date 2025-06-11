@@ -1,3 +1,4 @@
+
 public class VertexDir<E> {
     private E data;
     protected ListLinked<EdgeDir<E>> listAdj;

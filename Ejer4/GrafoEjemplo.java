@@ -16,7 +16,7 @@ import java.util.Map;
 public class GrafoEjemplo extends JFrame {
 
     public GrafoEjemplo() {
-        setTitle("Visualización de Varios Grafos");
+        setTitle("Visualización de Varios Grafos");                                                                                                                                                                                                                                                                                                                                                                                                             
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLayout(new GridLayout(2, 2)); // 2 filas x 2 columnas
 
