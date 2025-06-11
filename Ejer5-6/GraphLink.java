@@ -1,9 +1,9 @@
 public class GraphLink<E> {
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     protected ListLinked<Vertex<E>> listVertex = new ListLinked();
 
-    public GraphLink() {
-    }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void insertVertex(E var1) {
         if (this.searchVertexObject(var1) == null) {
             this.listVertex.add(new Vertex(var1));
@@ -11,6 +11,7 @@ public class GraphLink<E> {
 
     }
 
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void insertEdge(E var1, E var2) {
         Vertex var3 = this.searchVertexObject(var1);
         Vertex var4 = this.searchVertexObject(var2);
@@ -25,7 +26,7 @@ public class GraphLink<E> {
 
         }
     }
-
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public Vertex<E> searchVertexObject(E var1) {
         for(Vertex var3 : this.listVertex) {
             if (var3.getData().equals(var1)) {
@@ -39,18 +40,18 @@ public class GraphLink<E> {
     public boolean searchVertex(E var1) {
         return this.searchVertexObject(var1) != null;
     }
-
+    @SuppressWarnings({ "rawtypes", "unchecked" })
     public boolean searchEdge(E var1, E var2) {
         Vertex var3 = this.searchVertexObject(var1);
         Vertex var4 = this.searchVertexObject(var2);
         return var3 != null && var4 != null ? var3.listAdj.contains(new Edge(var4)) : false;
     }
-
+    @SuppressWarnings("rawtypes")
     public int degree(E var1) {
         Vertex var2 = this.searchVertexObject(var1);
         return var2 == null ? -1 : var2.listAdj.size();
     }
-
+    @SuppressWarnings("rawtypes")
     public boolean isPath() {
         int var1 = 0;
         int var2 = 0;
@@ -69,6 +70,7 @@ public class GraphLink<E> {
         return var1 == 2 && var1 + var2 == this.listVertex.size();
     }
 
+    @SuppressWarnings("rawtypes")
     public boolean isCycle() {
         for(Vertex var2 : this.listVertex) {
             if (var2.listAdj.size() != 2) {
@@ -79,6 +81,7 @@ public class GraphLink<E> {
         return true;
     }
 
+    @SuppressWarnings("rawtypes")
     public boolean isWheel() {
         int var1 = this.listVertex.size();
         int var2 = 0;
@@ -98,6 +101,7 @@ public class GraphLink<E> {
         return var2 == 1 && var3 == var1 - 1;
     }
 
+    @SuppressWarnings("rawtypes")
     public boolean isComplete() {
         int var1 = this.listVertex.size();
 
@@ -121,7 +125,7 @@ public class GraphLink<E> {
         for (Vertex<E> v : listVertex) {
             for (Edge<E> e : v.listAdj) {
                 if (v.getData().toString().compareTo(e.getRefDest().getData().toString()) < 0) {
-                    System.out.print("(" + v.getData() + "," + e.getRefDest().getData() + ") ");
+                    System.out.print("{" + v.getData() + "," + e.getRefDest().getData() + "} ");
                 }
             }
         }
@@ -138,6 +142,7 @@ public class GraphLink<E> {
         }
     }
 
+    @SuppressWarnings("unchecked")
     public void printAdjacencyMatrix() {
         int n = listVertex.size();
         Object[] vertices = new Object[n];
