@@ -22,6 +22,7 @@ public class Edge<E> {
     @Override
     public boolean equals(Object o) {
         if (o instanceof Edge<?>) {
+            @SuppressWarnings("unchecked")
             Edge<E> e = (Edge<E>) o;
             return this.refDest.equals(e.refDest);
         }

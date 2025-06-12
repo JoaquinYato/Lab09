@@ -1,14 +1,34 @@
-import java.util.Iterator;
-import java.util.NoSuchElementException;
-
-public class ListLinked<T> implements Iterable<T> {
+// ListLinked.java
+public class ListLinked<T> {
     private Node<T> head;
     private int size;
 
-    private static class Node<T> {
+    protected static class Node<T> {
         T data;
         Node<T> next;
         Node(T data) { this.data = data; }
+    }
+
+    // Iterador público y estático
+    public static class SimpleIterator<T> {
+        private Node<T> current;
+
+        public SimpleIterator(Node<T> head) {
+            this.current = head;
+        }
+
+        public boolean hasNext() {
+            return current != null;
+        }
+
+        public T next() {
+            if (!hasNext()) {
+                throw new RuntimeException("No more elements");
+            }
+            T data = current.data;
+            current = current.next;
+            return data;
+        }
     }
 
     public ListLinked() {
@@ -29,7 +49,9 @@ public class ListLinked<T> implements Iterable<T> {
     }
 
     public boolean contains(T data) {
-        for (T item : this) {
+        SimpleIterator<T> it = simpleIterator();
+        while (it.hasNext()) {
+            T item = it.next();
             if (item.equals(data)) return true;
         }
         return false;
@@ -39,27 +61,16 @@ public class ListLinked<T> implements Iterable<T> {
         return size;
     }
 
-    @Override
-    public Iterator<T> iterator() {
-        return new Iterator<T>() {
-            private Node<T> current = head;
-            public boolean hasNext() { return current != null; }
-            public T next() {
-                if (!hasNext()) throw new NoSuchElementException();
-                T data = current.data;
-                current = current.next;
-                return data;
-            }
-        };
+    public SimpleIterator<T> simpleIterator() {
+        return new SimpleIterator<T>(head);
     }
 
-    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        for (T item : this) {
-            sb.append(item);
+        SimpleIterator<T> it = simpleIterator();
+        while (it.hasNext()) {
+            sb.append(it.next());
         }
         return sb.toString();
     }
 }
-

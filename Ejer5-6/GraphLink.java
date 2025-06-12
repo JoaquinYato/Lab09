@@ -1,62 +1,58 @@
+// GraphLink.java
 public class GraphLink<E> {
-    @SuppressWarnings({ "rawtypes", "unchecked" })
-    protected ListLinked<Vertex<E>> listVertex = new ListLinked();
+    protected ListLinked<Vertex<E>> listVertex = new ListLinked<>();
 
-
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void insertVertex(E var1) {
         if (this.searchVertexObject(var1) == null) {
-            this.listVertex.add(new Vertex(var1));
+            this.listVertex.add(new Vertex<E>(var1));
         }
-
     }
 
-    @SuppressWarnings({ "rawtypes", "unchecked" })
     public void insertEdge(E var1, E var2) {
-        Vertex var3 = this.searchVertexObject(var1);
-        Vertex var4 = this.searchVertexObject(var2);
+        Vertex<E> var3 = this.searchVertexObject(var1);
+        Vertex<E> var4 = this.searchVertexObject(var2);
         if (var3 != null && var4 != null) {
-            if (!var3.listAdj.contains(new Edge(var4))) {
-                var3.listAdj.add(new Edge(var4));
+            if (!var3.listAdj.contains(new Edge<E>(var4))) {
+                var3.listAdj.add(new Edge<E>(var4));
             }
-
-            if (!var4.listAdj.contains(new Edge(var3))) {
-                var4.listAdj.add(new Edge(var3));
+            if (!var4.listAdj.contains(new Edge<E>(var3))) {
+                var4.listAdj.add(new Edge<E>(var3));
             }
-
         }
     }
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+
     public Vertex<E> searchVertexObject(E var1) {
-        for(Vertex var3 : this.listVertex) {
+        ListLinked.SimpleIterator<Vertex<E>> it = listVertex.simpleIterator();
+        while (it.hasNext()) {
+            Vertex<E> var3 = it.next();
             if (var3.getData().equals(var1)) {
                 return var3;
             }
         }
-
         return null;
     }
 
     public boolean searchVertex(E var1) {
         return this.searchVertexObject(var1) != null;
     }
-    @SuppressWarnings({ "rawtypes", "unchecked" })
+
     public boolean searchEdge(E var1, E var2) {
-        Vertex var3 = this.searchVertexObject(var1);
-        Vertex var4 = this.searchVertexObject(var2);
-        return var3 != null && var4 != null ? var3.listAdj.contains(new Edge(var4)) : false;
+        Vertex<E> var3 = this.searchVertexObject(var1);
+        Vertex<E> var4 = this.searchVertexObject(var2);
+        return var3 != null && var4 != null ? var3.listAdj.contains(new Edge<E>(var4)) : false;
     }
-    @SuppressWarnings("rawtypes")
+
     public int degree(E var1) {
-        Vertex var2 = this.searchVertexObject(var1);
+        Vertex<E> var2 = this.searchVertexObject(var1);
         return var2 == null ? -1 : var2.listAdj.size();
     }
-    @SuppressWarnings("rawtypes")
+
     public boolean isPath() {
         int var1 = 0;
         int var2 = 0;
-
-        for(Vertex var4 : this.listVertex) {
+        ListLinked.SimpleIterator<Vertex<E>> it = listVertex.simpleIterator();
+        while (it.hasNext()) {
+            Vertex<E> var4 = it.next();
             int var5 = var4.listAdj.size();
             if (var5 == 1) {
                 ++var1;
@@ -66,28 +62,27 @@ public class GraphLink<E> {
                 return false;
             }
         }
-
-        return var1 == 2 && var1 + var2 == this.listVertex.size();
+        return var1 == 2 && var1 + var2 == listVertex.size();
     }
 
-    @SuppressWarnings("rawtypes")
     public boolean isCycle() {
-        for(Vertex var2 : this.listVertex) {
+        ListLinked.SimpleIterator<Vertex<E>> it = listVertex.simpleIterator();
+        while (it.hasNext()) {
+            Vertex<E> var2 = it.next();
             if (var2.listAdj.size() != 2) {
                 return false;
             }
         }
-
         return true;
     }
 
-    @SuppressWarnings("rawtypes")
     public boolean isWheel() {
-        int var1 = this.listVertex.size();
+        int var1 = listVertex.size();
         int var2 = 0;
         int var3 = 0;
-
-        for(Vertex var5 : this.listVertex) {
+        ListLinked.SimpleIterator<Vertex<E>> it = listVertex.simpleIterator();
+        while (it.hasNext()) {
+            Vertex<E> var5 = it.next();
             int var6 = var5.listAdj.size();
             if (var6 == var1 - 1) {
                 ++var2;
@@ -97,33 +92,35 @@ public class GraphLink<E> {
                 return false;
             }
         }
-
         return var2 == 1 && var3 == var1 - 1;
     }
 
-    @SuppressWarnings("rawtypes")
     public boolean isComplete() {
-        int var1 = this.listVertex.size();
-
-        for(Vertex var3 : this.listVertex) {
+        int var1 = listVertex.size();
+        ListLinked.SimpleIterator<Vertex<E>> it = listVertex.simpleIterator();
+        while (it.hasNext()) {
+            Vertex<E> var3 = it.next();
             if (var3.listAdj.size() != var1 - 1) {
                 return false;
             }
         }
-
         return true;
     }
 
-    // Ejercicio 6
-
     public void printFormal() {
         System.out.print("Vértices: { ");
-        for (Vertex<E> v : listVertex) {
+        ListLinked.SimpleIterator<Vertex<E>> it = listVertex.simpleIterator();
+        while (it.hasNext()) {
+            Vertex<E> v = it.next();
             System.out.print(v.getData() + " ");
         }
         System.out.print("}\nAristas: { ");
-        for (Vertex<E> v : listVertex) {
-            for (Edge<E> e : v.listAdj) {
+        it = listVertex.simpleIterator();
+        while (it.hasNext()) {
+            Vertex<E> v = it.next();
+            ListLinked.SimpleIterator<Edge<E>> itAdj = v.listAdj.simpleIterator();
+            while (itAdj.hasNext()) {
+                Edge<E> e = itAdj.next();
                 if (v.getData().toString().compareTo(e.getRefDest().getData().toString()) < 0) {
                     System.out.print("{" + v.getData() + "," + e.getRefDest().getData() + "} ");
                 }
@@ -133,28 +130,31 @@ public class GraphLink<E> {
     }
 
     public void printAdjacencyList() {
-        for (Vertex<E> v : listVertex) {
+        ListLinked.SimpleIterator<Vertex<E>> it = listVertex.simpleIterator();
+        while (it.hasNext()) {
+            Vertex<E> v = it.next();
             System.out.print(v.getData() + ": ");
-            for (Edge<E> e : v.listAdj) {
+            ListLinked.SimpleIterator<Edge<E>> itAdj = v.listAdj.simpleIterator();
+            while (itAdj.hasNext()) {
+                Edge<E> e = itAdj.next();
                 System.out.print(e.getRefDest().getData() + " ");
             }
             System.out.println();
         }
     }
 
-    @SuppressWarnings("unchecked")
     public void printAdjacencyMatrix() {
         int n = listVertex.size();
         Object[] vertices = new Object[n];
         int idx = 0;
-        for (Vertex<E> v : listVertex) {
+        ListLinked.SimpleIterator<Vertex<E>> it = listVertex.simpleIterator();
+        while (it.hasNext()) {
+            Vertex<E> v = it.next();
             vertices[idx++] = v.getData();
         }
-// Encabezado
         System.out.print("   ");
         for (Object v : vertices) System.out.print(v + " ");
         System.out.println();
-// Matriz
         for (int i = 0; i < n; i++) {
             System.out.print(vertices[i] + ": ");
             for (int j = 0; j < n; j++) {
@@ -169,6 +169,4 @@ public class GraphLink<E> {
     public String toString() {
         return this.listVertex.toString();
     }
-
 }
-
